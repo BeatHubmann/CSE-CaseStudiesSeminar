@@ -1,0 +1,450 @@
+% !TEX TS-program = pdflatex
+% !TeX encoding = UTF-8
+% !TeX spellcheck = en_GB
+
+\documentclass[aspectratio=43]{beamer}
+% use this instead for 16:9 aspect ratio:
+%\documentclass[aspectratio=169]{beamer}
+% supported acpect ratios  1610  169 149 54 43 (default) 32
+%
+
+\usepackage[english]{babel} 
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{algorithm,algorithmic}
+\usepackage{hyperref}
+\usepackage{multimedia}
+\usetheme{ETHbeamer}
+\useinnertheme{rectangles}
+
+\colorlet{ETHcolor1}{ETHa}
+\colorlet{ETHcolor2}{ETHa}
+
+\author{Beat Hubmann}
+
+\title{Seminar in Physics for CSE\\
+    Ardizzone et al.:\\	   
+	Analyzing Inverse Problems with Invertible Neural Networks}
+
+\date{December 12, 2019}
+
+% uncomment if you do not want to use a department logo
+\deplogofalse
+
+% to get section outlines
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Outline}
+    \tableofcontents[currentsection,hideothersubsections]
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}
+    \frametitle{Outline}
+    \tableofcontents[currentsection,currentsubsection]
+  \end{frame}
+}
+
+
+% ===============
+\begin{document}
+
+\titleframe
+
+% \begin{frame}
+% 	\frametitle{Contents}
+% 	\tableofcontents
+% \end{frame}
+
+
+
+\section{Motivation and Selected Theory}
+
+\begin{frame}
+    
+	\frametitle{What Is an Inverse Problem?}
+	\begin{center}	
+		\begin{tikzpicture}
+			\node<1>[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[height=5cm]{INN-forward-process.png}};
+			\node<2->[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[height=5cm]{INN-inverse-process-direct.png}};
+			\node<3> [align=center, red, font={\Huge}] at (image.center) {ambiguous};
+			% \node<3->[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[height=5cm]{inverse_problems2.png}};
+			\node<4> [align=center, red, font={\Huge}] at (image.center) {wanted: $p(x|y)$};
+		\end{tikzpicture}\cite{Ardizzone2_2019}
+	\end{center}
+\end{frame}
+
+
+% \begin{frame}
+% 	\frametitle{Then Why Not Just Train a NN for the Inverse?}
+% 	\begin{columns}[T]
+% 		\column{5cm}
+% 			\includegraphics[width=5cm]{INN-inverse-process-direct.png}
+
+% 		\column{5cm}
+% 			direct supervised learning of $y \rightarrow x$ problematic:\\ \alert{ambiguous}
+
+% 	\end{columns}
+% \end{frame}
+
+
+\begin{frame}
+	\frametitle{Ambiguous Inverse Problem Go-To Nr. 1: MCMC}
+	\begin{columns}[T]
+		\column{5cm}
+			\begin{center}
+				\includegraphics{mcmc.jpg}
+			\end{center}
+		\column{5cm}
+			\begin{itemize}
+				\item<1->e.g. Metropolis-Hastings algorithm
+				\item<1->\alert{expensive}
+			\end{itemize}
+	\end{columns}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Inverse Problem Go-To Nr. 2:\\Approximate Bayesian Computation}
+	\begin{center}	
+		\begin{tikzpicture}
+			\node<1>[align=center, black, font={\Huge}] at (image.center) {$\pi(\theta|y) \propto p(y|\theta)\pi(\theta)$};
+			\node<2->[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[height=6cm]{ABC_parameter_est.png}\cite{Sunnaker2013}};
+			\node<3->[align=center, red, font={\Huge}] at (image.center) {expensive};
+		\end{tikzpicture}
+	\end{center}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+        \begin{tikzpicture}
+            \node<1>[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[height=9cm]{ABC.png}\cite{Sunnaker2013}};
+            \node<2>[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[width=11cm]{ABC1.png}\cite{Sunnaker2013}};
+            \node<3>[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[width=11cm]{ABC2.png}\cite{Sunnaker2013}};
+            \node<4>[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[width=11cm]{ABC3.png}\cite{Sunnaker2013}};
+		\end{tikzpicture}
+    \end{center}
+\end{frame}
+
+
+
+
+
+
+
+
+\begin{frame}
+	\frametitle{Neural Network-based Approaches (1)}
+	\begin{itemize}
+		\item predict fitting parameter of a distribution: \alert{restrictive}
+		\begin{center}
+			\includegraphics[height=6cm]{predict_fit.png}\cite{Nix1994}
+		\end{center}
+	\end{itemize}
+	
+\end{frame}
+
+\begin{frame}
+	\frametitle{Neural Network-based Approaches (2)}
+	\begin{itemize}
+		\item use variational network weights: \alert{still restrictive}
+		\begin{center}
+			\includegraphics[width=10cm]{uncertain_weights.png}\cite{Blundell2015}
+		\end{center}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Neural Network-based Approaches (3)}
+	\begin{itemize}
+		\item use conditional Generative Adversarial Networks: \alert{yes, but ...}
+		\begin{center}
+			\includegraphics[height=6cm]{conditional_GAN.png}\cite{Mirza2014}
+		\end{center}
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{What is the difference between standard NN and invertible NN?}
+    \begin{center}
+        \includegraphics[width=11cm]{NNvsINN.png}\cite{Ardizzone1_2019}
+    \end{center}
+\end{frame}
+        
+
+
+
+
+
+
+
+
+\begin{frame}
+	\frametitle{Creating a Bijective Mapping: $x \leftrightarrow [y, z]$}
+	\begin{center}
+		\begin{tikzpicture}
+			\node[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[width=10cm]{INN-forward-process-with-z.png}};
+		\end{tikzpicture}\cite{Ardizzone2_2019}
+	\end{center}
+\end{frame}
+
+
+% \begin{frame}
+% 	\frametitle{Invertible Neural Networks to the Rescue!}
+% 	\begin{center}
+% 		\begin{tikzpicture}
+% 			\node[anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[width=10cm]{INN-training-scheme.png}};
+% 		\end{tikzpicture}
+% 	\end{center}
+% \end{frame}
+
+
+
+
+
+\begin{frame}
+	\frametitle{Resolving the Ambiguity}
+	\begin{center}	
+		\begin{tikzpicture}
+			\node<1-> [anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[width=10cm]{INN-scheme.png}\cite{Ardizzone2_2019}};
+			\draw<1-> [red, thick] (9,0.4) rectangle (10,2.6);
+			\node<1> [align=center, white, font={\Large}] at (5,-0.75) {$p(x|y)$ replaced by deterministic function:\\ $x=g(y,z;\theta);\quad z\sim \mathcal{N}(0,1)$};
+			\node<1-2> [align=center, white, font={\Large}] at (5,-2) {$\hat{p}(x=g(y,z;\theta)|y) = p_z {\lvert{\det{\frac{\partial g(y,z;\theta)}{\partial [y,z]}}}\rvert}^{-1}$}; 
+			\node<2-> [align=center, black, font={\Large}] at (5,-0.75) {$p(x|y)$ replaced by deterministic function:\\ $x=g(y,z;\theta);\quad z\sim \mathcal{N}(0,1)$};
+			\node<3-> [align=center, black, font={\Large}] at (5,-2) {$\hat{p}(x|y)=q(x=g(y,z;\theta)|y) = p_z {\lvert{\det{\frac{\partial g(y,z;\theta)}{\partial [y,z]}}}\rvert}^{-1}$}; 
+		\end{tikzpicture}
+	\end{center}
+\end{frame}
+
+
+
+
+
+
+
+
+\begin{frame}
+	\frametitle{Invertible Neural Networks: Core Idea}
+	% \begin{center}
+			\begin{description}
+			\item<1->$s_1, s_2, t_1, t_2: \mathbb{R} \rightarrow \mathbb{R} $
+			\item<1->$u_1, u_2 \in \mathbb{R}$
+			\item<2->$v_1 = u_1 \cdot \exp(s_2(u_2)) + t_2(u_2)$
+			\item<2->$v_2 = u_2 \cdot \exp(s_1(v_1)) + t_1(v_1)$
+			\item<3->$u_2 = \frac{v_2 - t_1(v_1)}{\exp(s_1(v_1))}$
+			\item<3->$u_1 = \frac{v_1 - t_2(u_2)}{\exp(s_2(u_2))}$
+			\item 
+			\item<4>\alert{$s_i$ and $t_i$ can be arbitrarily complicated functions:\\
+			no need to be invertible themselves,\\ hence can use trainable functions}
+			\end{description}
+	% \end{center}
+	% \begin{proof}
+	% 	\begin{enumerate}
+	% 	\item<1-| alert@1> Suppose $p$ were the largest prime number.
+	% 	\item<2-| alert@2> Let $q$ be the product of the first $p$ numbers.
+	% 	\item<3-| alert@3> Then $q + 1$ is not divisible by any of them.
+	% 	\item<1-| alert@4> But $q + 1$ is greater than $1$, thus divisible by some prime
+	% 	number not in the first $p$ numbers.\qedhere \end{enumerate}
+	% 	\end{proof}
+	% 	\uncover<5->{The proof used \textit{reductio ad absurdum}.}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{INN Main Building Block: Affine Coupling Layer}
+	% \begin{center}
+			\begin{description}
+			\item<1->[forward process:]\includegraphics[width=9cm]{INN-coupling-layer.png}
+			\item<1->[inverse process:]\includegraphics[width=9cm]{INN-coupling-layer-inverse.png}\cite{Ardizzone2_2019}
+			% \item<3->\alert{$s_i$ and $t_i$ need not be invertible themselves:\\can use trainable functions}
+			\end{description}
+	% \end{center}
+	% \begin{proof}
+	% 	\begin{enumerate}
+	% 	\item<1-| alert@1> Suppose $p$ were the largest prime number.
+	% 	\item<2-| alert@2> Let $q$ be the product of the first $p$ numbers.
+	% 	\item<3-| alert@3> Then $q + 1$ is not divisible by any of them.
+	% 	\item<1-| alert@4> But $q + 1$ is greater than $1$, thus divisible by some prime
+	% 	number not in the first $p$ numbers.\qedhere \end{enumerate}
+	% 	\end{proof}
+	% 	\uncover<5->{The proof used \textit{reductio ad absurdum}.}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Characterization of Invertible Neural Networks}
+	\begin{enumerate}
+		\item mapping bijective: \alert{has inverse}
+		\item forward and inverse mapping \alert{efficiently computable}
+		\item forward and inverse mapping with \alert{tractable Jacobian}
+	\end{enumerate}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Training Scheme}
+	\begin{center}	
+		\begin{tikzpicture}
+			\node<1-> [anchor=south west, inner sep=0] (image) at (0,0) {\includegraphics[width=10cm]{INN-training-scheme.png}};
+            \draw<1> [red, thick] (7, 1.5) rectangle (10,2.9);
+            \draw<1> [red, thick] (7, 0.4) rectangle (10, 1.7);
+            \node<1> [align=center, black, font={\Large}] at (5,-0.75) {forward loss: any supervised loss $\mathcal{L}_y(y_i, f_y(x_i))$ \\ + MMD};
+            \draw<2> [red, thick] (0.2,0.4) rectangle (2.6,2.9);
+            \node<2> [align=center, black, font={\Large}] at (5,-0.75) {backward loss: dual loss $\mathcal{L}_z(q(y, z), p(y)p(z))$};
+
+		\end{tikzpicture}\cite{Ardizzone2_2019}
+	\end{center}
+\end{frame}
+
+
+
+\begin{frame}
+	\frametitle{Loss function for backward loss $\mathcal{L}_z$:\\Maximum Mean Discrepancy (MMD)}
+	\begin{columns}[T]
+		\column{5cm}
+			given:\\ $X=\{x_1, \ldots, x_m\} \sim p$, $Y=\{y_1, \ldots, y_n\} \sim q$\\
+			\alert{test if $p=q$} 
+		\column{5cm}
+			\begin{center}
+				\includegraphics[width=5cm]{MMD.png}\cite{Smola2006}
+			\end{center}
+	\end{columns}
+	\begin{itemize}
+		\item<1->Kullback-Leibler divergence or $L^1$/$L^2$ distance compare $\hat p, \hat q$: \alert{indirect measure}
+		\item<2->MMD uses kernel trick: \alert{direct measure}
+		\item<2->MMD does \alert{not require explicit Jacobians}
+	\end{itemize}
+\end{frame}
+
+
+\section{Examples}
+
+\begin{frame}
+	\frametitle{Toy Example: Gaussian Mixture Model}
+	\begin{description}
+		\item<1->\includegraphics[width=7cm]{toy-truth}\cite{Ardizzone2_2019}
+		\item<2->\movie[externalviewer]{\includegraphics[width=7cm]{INN-toy-animation-poster}}{INN-toy-animation.mp4}
+	\end{description}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Real-World Example: Biological Tissue Parameters from Multispectral Image}
+	\begin{center}
+		\begin{tikzpicture}
+			\node<1>{\includegraphics[width=9.25cm]{tissue-data.png}\cite{Ardizzone1_2019}};
+			\node<2>{\includegraphics[width=9.25cm]{tissue-table.png}\cite{Ardizzone1_2019}};	
+		\end{tikzpicture}
+	\end{center}
+\end{frame}
+
+
+
+\section{Conclusion}
+
+
+\begin{frame}
+	\frametitle{Benefits of the INN Method}
+	\begin{itemize}
+		\item Very good quantitative and qualitative results
+		\item Relatively easy, cheap and straightforward to train
+	\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Challenges of the INN Method}
+
+	\begin{itemize}
+		\item How to decide the intrinsic dimension of the data?
+		\item How to decide splitting $x$ into $u_1$ and $u_2$?
+		\item How to decide permutation of the streams $u_1$ and $u_2$ between coupling layers?
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{My Take}
+	\begin{center}
+		\begin{tikzpicture}
+			\node<2->{\includegraphics[width=5cm]{positive.png}};
+		\end{tikzpicture}
+	\end{center}
+
+\end{frame}
+
+
+\appendix
+\section*{References}
+\begin{frame}[allowframebreaks]
+\frametitle{References}
+	\begin{thebibliography}{10}
+		\bibliographystyle{apalike}
+
+		% \beamertemplatebookbibitems
+		% % Start with overview books.
+	  
+		% \bibitem{Author1990}
+		%   A.~Author.
+		%   \newblock {\em Handbook of Everything}.
+		%   \newblock Some Press, 1990.
+	   
+		  
+		\beamertemplatearticlebibitems
+		% Followed by interesting articles.
+	  
+		\bibitem{Ardizzone1_2019}
+		  L. Ardizzone et al.
+		  \newblock Analyzing Inverse Problems with Invertible Neural Networks.
+		  \newblock {\em ICLR 2019 conference paper}, \href{https://arxiv.org/abs/1808.04730}{arXiv:1808.04730},
+		  2019.
+		
+		  \bibitem{Ardizzone2_2019}
+		  L. Ardizzone et al.
+		  \newblock Analyzing Inverse Problems with Invertible Neural Networks.
+		  \newblock {\em Visual Learning Lab Heidelberg}, \href{https://hci.iwr.uni-heidelberg.de/vislearn/inverse-problems-invertible-neural-networks/}{Blog Post},
+		  2018.
+
+		  \bibitem{Dinh2016}
+		  L. Dinh et al.
+		  \newblock Density Estimation using Real NVP.
+		  \newblock {\em ICLR 2017 conference paper}, \href{https://arxiv.org/abs/1605.08803}{arXiv:1605.08803},
+		  2016.
+	
+		  \bibitem{Smola2006}
+		  A. Smola
+		  \newblock Maximum Mean Discrepancy.
+		  \newblock {\em ICONIP 2006 conference presentation}, \href{http://alex.smola.org/teaching/iconip2006/iconip_3.pdf}{Alexander Smola's Personal Page (Retrieved Sep 26, 2019)},
+		  2006.
+
+		  \bibitem{Mirza2014}
+		  M. Mirza and S. Osindero
+		  \newblock Conditional Generative Adversarial Nets.
+		  \newblock \href{https://arxiv.org/abs/1411.1784}{arXiv:1411.1784},
+		  2014. 
+		 
+		  \bibitem{Blundell2015}
+		  C. Blundell et al.
+		  \newblock Weight Uncertainty in Neural Networks.
+		  \newblock {\em Google DeepMind}, \href{https://arxiv.org/abs/1505.05424}{arXiv:1505.05424},
+		  2015.
+
+		  \bibitem{Nix1994}
+		  D. Nix and A. Weigend
+		  \newblock Estimating the Mean and Variance of the Target Probability Distribution.
+		  \newblock {\em ICNN94 conference paper}, \href{https://doi.org/10.1109/ICNN.1994.374138}{DOI:10.1109/ICNN.1994.374138},
+		  1994
+
+		  \bibitem{Sunnaker2013}
+		  M. Sunn\aa ker et al.
+		  \newblock Approximate Bayesian Computation.
+		  \newblock {\em PLoS Comput Biol 9(1): e1002803}, \href{https://doi.org/10.1371/journal.pcbi.1002803}{DOI:10.1371/journal.pcbi.1002803},
+		  2013
+
+	\end{thebibliography}
+
+\end{frame}
+\end{document}
